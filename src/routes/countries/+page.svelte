@@ -29,19 +29,19 @@
 			<table class="table">
 				<thead>
 				<tr>
-					<th>ID</th>
-					<th>Name</th>
-					<th>Created At</th>
-					<th></th>
+					<th scope="col" id="headerId">ID</th>
+					<th scope="col" id="headerName">Name</th>
+					<th scope="col" id="headerCreatedAt">Created At</th>
+					<th scope="col" id="headerOptions">Options</th>
 				</tr>
 				</thead>
 				<tbody>
 				{#each data.body.countries as country (country.id)}
 					<tr>
-						<td>{country.id}</td>
-						<td>{country.name}</td>
-						<td>{formatDate(country.created_at)}</td>
-						<td>
+						<td headers="headerId">{country.id}</td>
+						<td headers="headerName">{country.name}</td>
+						<td headers="headerCreatedAt">{formatDate(country.created_at)}</td>
+						<td headers="headerOptions">
 							<span class="options-span" style="color: #a3fff1">Options</span>
 						</td>
 						<Dropdown triggeredBy=".options-span">
