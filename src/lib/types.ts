@@ -11,5 +11,4 @@ export type CreateCountryModel = {
 
 export type UpdateCountryModel = {
 	name: string;
-	edited_at: string;
 };

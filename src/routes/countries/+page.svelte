@@ -1,15 +1,19 @@
 <script lang="ts">
-	import type { CountryModel, CreateCountryModel } from '$lib/types';
+	import type { CountryModel, CreateCountryModel, UpdateCountryModel } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 	import CountriesTable from '$lib/customComponents/CountriesTable.svelte';
-	import CreateCountryModal from '$lib/customComponents/CreateCountryModal.svelte';
+	import CreateCountryModal from '$lib/customComponents/CreateOrEditCountryModal.svelte';
 	import { fade } from 'svelte/transition';
 
 	let countries: CountryModel[] = [];
 	const toastStore = getToastStore();
 
 	let createFormModal = false;
+	let editFormModal = false;
+
+	let selectedCountry: CountryModel | null = null;
+
 
 	async function getCountries() {
 		const res = await fetch('/countries');
@@ -19,8 +23,9 @@
 	}
 
 	function handleEdit(country: CountryModel) {
-		console.log('edit clicked for country: ', country);
-		// Implement your edit logic here
+		selectedCountry = country;
+		console.log('selected country on handleEdit is ' + selectedCountry);
+		editFormModal = true;
 	}
 
 	async function deleteCountry(country: CountryModel) {
@@ -97,13 +102,46 @@
 		}
 	}
 
+	async function updateCountryHandler() {
+		if (!selectedCountry) {
+			console.error('No country selected for updating');
+			return;
+		}
+
+		const updatedCountry: UpdateCountryModel = {
+			name: selectedCountry.name
+		};
+
+		try {
+			const response = await fetch('/countries/' + selectedCountry.id, {
+				method: 'PATCH',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(updatedCountry)
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to update country');
+			}
+
+			const responseData = await response.json();
+			showToast(responseData.message);
+
+			await getCountries();
+		} catch (error) {
+			showToast('Error updating country', 3000, 'bg-red-500');
+			console.error('Error:', error);
+		}
+	}
+
 	onMount(async () => {
 		await getCountries();
 	});
+	// empty country
 </script>
 
 <main in:fade={{delay: 200}}>
 	<CountriesTable {countries} onEdit={handleEdit} onDelete={deleteCountry} onCreate={() => { createFormModal = true }} />
 	<CreateCountryModal bind:open={createFormModal} on:create={createCountryHandler} />
+	<CreateCountryModal bind:open={editFormModal} on:create={() => updateCountryHandler()} />
 </main>
 
