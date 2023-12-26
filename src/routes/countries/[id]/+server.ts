@@ -10,3 +10,13 @@ export async function DELETE({ params }) {
 	if (error) return json({ message: error.message }, { status: 500 });
 	return json({ message: "Country deleted successfully" }, { status: 200 });
 }
+
+export async function GET({ params }) {
+	const countryId = params.id;
+
+	if (!countryId) return json({ message: "Country ID is required" }, { status: 400 });
+	const { data, error } = await supabase.from('Countries').select('*').match({ id: countryId });
+
+	if (error) return json({ message: error.message }, { status: 500 });
+	return json(data[0], { status: 200 });
+}

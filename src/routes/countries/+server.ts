@@ -1,5 +1,5 @@
-import { json } from '@sveltejs/kit';
-import type { Country } from '$lib/types';
+import { json, type RequestHandler } from '@sveltejs/kit';
+import type { CountryModel } from '$lib/types';
 import { supabase } from '$lib/supabaseClient';
 
 export async function GET() {
@@ -7,7 +7,7 @@ export async function GET() {
 
 	if (error) throw error;
 
-	const countries: Country[] = data.map((country: Country) => ({
+	const countries: CountryModel[] = data.map((country: CountryModel) => ({
 		id: country.id,
 		name: country.name,
 		created_at: country.created_at,
@@ -17,8 +17,15 @@ export async function GET() {
 	return json({ countries });
 }
 
-export async function POST() {
-	const countryName = "New Country";
+export const POST: RequestHandler = async ({ request }) => {
+	// Parse the request body to get the country name
+	const body = await request.json();
+	const countryName = body.name;
+
+	// Validate the input
+	if (typeof countryName !== 'string' || countryName.trim() === '') {
+		return json({ message: 'Invalid country name' }, { status: 400 });
+	}
 
 	// Create a new country record in the database
 	const { error } = await supabase.from('Countries').insert([
@@ -31,4 +38,4 @@ export async function POST() {
 
 	// Return a success message
 	return json({ message: "Country created successfully" }, { status: 201 });
-}
+};

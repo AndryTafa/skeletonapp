@@ -1,15 +1,14 @@
 <script lang="ts">
-	import type { Country } from '$lib/types';
+	import type { CountryModel } from '$lib/types';
 	import { Dropdown, DropdownItem } from 'flowbite-svelte';
 
-	export let countries: Country[] = [];
-	export let onEdit: (country: Country) => void;
-	export let onDelete: (country: Country) => void;
+	export let countries: CountryModel[] = [];
+	export let onEdit: (country: CountryModel) => void;
+	export let onDelete: (country: CountryModel) => void;
 	export let onCreate: () => void;
 
 	const formatDate = (dateString: string): string => dateString.split('T')[0];
 </script>
-
 <div class="table-block">
 	<div class="table-container">
 		<table class="table">
@@ -18,7 +17,7 @@
 				<th scope="col" id="headerId">ID</th>
 				<th scope="col" id="headerName">Name</th>
 				<th scope="col" id="headerCreatedAt">Created At</th>
-				<th scope="col" id="headerOptions"></th>
+				<th scope="col" id="headerOptions" class="visually-hidden">Action</th>
 			</tr>
 			</thead>
 			<tbody>
@@ -44,6 +43,8 @@
 		</div>
 	</div>
 </div>
+
+
 
 <style>
 	.table-container {
@@ -74,5 +75,17 @@
 
 	.create-button {
 		margin-right: 5px;
+	}
+
+	/*needed for screen readers*/
+	.visually-hidden {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		padding: 0;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		border: 0;
 	}
 </style>

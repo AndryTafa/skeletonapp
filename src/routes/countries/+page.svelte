@@ -1,11 +1,17 @@
 <script lang="ts">
-	import type { Country } from '$lib/types';
+	import type { CountryModel, CreateCountryModel } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 	import CountriesTable from '$lib/customComponents/CountriesTable.svelte';
+	import { Button, Input, Label, Modal } from 'flowbite-svelte';
+	import CreateCountryModal from '$lib/customComponents/CreateCountryModal.svelte';
 
-	let countries: Country[] = [];
+	let countries: CountryModel[] = [];
 	const toastStore = getToastStore();
+
+	let createFormModal = false;
+	let newCountryName = '';
+
 
 	async function getCountries() {
 		const res = await fetch('/countries');
@@ -14,12 +20,13 @@
 		return countries;
 	}
 
-	function handleEdit(country: Country) {
+	function handleEdit(country: CountryModel) {
 		console.log('edit clicked for country: ', country);
 		// Implement your edit logic here
 	}
 
-	async function deleteCountry(country: Country) {
+	async function deleteCountry(country: CountryModel) {
+		const previousCountries = [...countries];
 		countries = countries.filter(c => c.id !== country.id);
 
 		try {
@@ -31,26 +38,27 @@
 
 			showToast('Country deleted successfully');
 		} catch (error) {
-			await getCountries();
-			showToast('Error deleting country', 3000);
+			countries = previousCountries; // Revert to the previous list of countries
+			showToast('Error deleting country', 3000, 'bg-red-500');
 			console.error('Error:', error);
 		}
 	}
 
-	async function createCountry() {
-		const tempNewCountry = {
-			id: -1,
-			name: 'New Country',
-			created_at: new Date().toISOString(),
-			edited_at: new Date().toISOString()
-		};
+	function createCountryHandler(event: CustomEvent) {
+		const { newCountryName } = event.detail;
+		createCountry(newCountryName);
+	}
 
-		countries = [...countries, tempNewCountry];
+	async function createCountry(countryName: string) {
+		const newCountry: CreateCountryModel = {
+			name: countryName
+		};
 
 		try {
 			const response = await fetch('/countries', {
 				method: 'POST',
-				headers: { 'Content-Type': 'application/json' }
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify(newCountry)
 			});
 
 			if (!response.ok) {
@@ -60,24 +68,30 @@
 			const responseData = await response.json();
 			showToast(responseData.message);
 
-			const actualNewCountry = await getCountries();
-			countries = countries.map(country =>
-				country.id === tempNewCountry.id ? actualNewCountry.find(c => c.name === 'New Country') : country
-			).filter((country): country is Country => !!country);
+			await getCountries();
 		} catch (error) {
-			countries = countries.filter(country => country.id !== tempNewCountry.id);
-			showToast('Error creating country', 3000);
+			showToast('Error creating country', 3000, 'bg-red-500');
 			console.error('Error:', error);
 		}
 	}
 
-	function showToast(msg: string, duration: number = 3000) {
-		const t: ToastSettings = {
-			message: msg,
-			hideDismiss: true,
-			timeout: duration
-		};
-		toastStore.trigger(t);
+	function showToast(msg: string, duration: number = 3000, background: string = '') {
+		if (background === '') {
+			const t: ToastSettings = {
+				message: msg,
+				hideDismiss: true,
+				timeout: duration,
+			};
+			toastStore.trigger(t);
+		} else {
+			const t: ToastSettings = {
+				message: msg,
+				hideDismiss: true,
+				timeout: duration,
+				background: background,
+			};
+			toastStore.trigger(t);
+		}
 	}
 
 	onMount(async () => {
@@ -85,4 +99,6 @@
 	});
 </script>
 
-<CountriesTable {countries} onEdit={handleEdit} onDelete={deleteCountry} onCreate={createCountry} />
+<CountriesTable {countries} onEdit={handleEdit} onDelete={deleteCountry} onCreate={() => { createFormModal = true }} />
+<CreateCountryModal bind:open={createFormModal} on:create={createCountryHandler} />
+
