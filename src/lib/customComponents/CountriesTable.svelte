@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { CountryModel } from '$lib/types';
 	import { Dropdown, DropdownItem } from 'flowbite-svelte';
+	import { fade } from 'svelte/transition';
 
 	export let countries: CountryModel[] = [];
 	export let onEdit: (country: CountryModel) => void;
@@ -22,7 +23,7 @@
 			</thead>
 			<tbody>
 			{#each countries as country (country.id)}
-				<tr>
+				<tr transition:fade>
 					<td headers="headerId">{country.id}</td>
 					<td headers="headerName">{country.name}</td>
 					<td headers="headerCreatedAt">{formatDate(country.created_at)}</td>
