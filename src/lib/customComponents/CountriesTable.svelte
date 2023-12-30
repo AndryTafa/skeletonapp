@@ -2,7 +2,6 @@
 	import type { CountryModel } from '$lib/types';
 	import { Dropdown, DropdownItem } from 'flowbite-svelte';
 	import { fade } from 'svelte/transition';
-	import { selectedCountry, setSelectedCountry } from '$lib/store';
 
 	export let countries: CountryModel[] = [];
 	export let onDelete: (country: CountryModel) => void;
@@ -32,7 +31,7 @@
 					<td headers="headerOptions">
 						<span class="options-span" style="color: #a3fff1" id={"trigger-" + country.id}>Options</span>
 						<Dropdown triggeredBy={"#trigger-" + country.id}>
-							<DropdownItem on:click={() => onEdit($selectedCountry)}>Edit</DropdownItem>
+							<DropdownItem on:click={() => onEdit(country)}>Edit</DropdownItem>
 							<DropdownItem on:click={() => onDelete(country)}>Delete</DropdownItem>
 						</Dropdown>
 					</td>

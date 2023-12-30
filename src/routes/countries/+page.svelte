@@ -13,7 +13,7 @@
 	let editFormModal = false;
 
 	let selectedCountry: CountryModel | null = null;
-
+	let newCountryName: string = '';
 
 	async function getCountries() {
 		const res = await fetch('/countries');
@@ -22,10 +22,16 @@
 		return countries.sort((a, b) => a.id - b.id);
 	}
 
+	let editingCountryName = ''; // For storing the name being edited
+
 	function handleEdit(country: CountryModel) {
 		selectedCountry = country;
-		console.log('selected country on handleEdit is ' + selectedCountry);
+		editingCountryName = country.name; // Set the initial value for editing
 		editFormModal = true;
+	}
+
+	function onEditConfirm(updatedName: string) {
+		updateCountryHandler(updatedName);
 	}
 
 	async function deleteCountry(country: CountryModel) {
@@ -102,21 +108,21 @@
 		}
 	}
 
-	async function updateCountryHandler() {
+	async function updateCountryHandler(updatedName: string) {
 		if (!selectedCountry) {
 			console.error('No country selected for updating');
 			return;
 		}
 
 		const updatedCountry: UpdateCountryModel = {
-			name: selectedCountry.name
+			name: updatedName
 		};
 
 		try {
 			const response = await fetch('/countries/' + selectedCountry.id, {
 				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(updatedCountry)
+				body: JSON.stringify(updatedCountry),
 			});
 
 			if (!response.ok) {
@@ -124,6 +130,7 @@
 			}
 
 			const responseData = await response.json();
+			console.log('responseData:', responseData)
 			showToast(responseData.message);
 
 			await getCountries();
@@ -142,6 +149,6 @@
 <main in:fade={{delay: 200}}>
 	<CountriesTable {countries} onEdit={handleEdit} onDelete={deleteCountry} onCreate={() => { createFormModal = true }} />
 	<CreateCountryModal bind:open={createFormModal} on:create={createCountryHandler} />
-	<CreateCountryModal bind:open={editFormModal} on:create={() => updateCountryHandler()} />
+	<CreateCountryModal bind:open={editFormModal} on:confirm={() => onEditConfirm(editingCountryName)} />
 </main>
 

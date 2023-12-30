@@ -25,14 +25,25 @@ export async function PATCH({ request, params }) {
 	const countryId = params.id;
 	const reqBody = await request.json();
 	const updatedCountryName = reqBody.name;
+	console.log("Updating country with ID:", countryId);
+	console.log("Updating country with name:", updatedCountryName);
 
-	const currentTime = new Date().toISOString();
+	const countryIdNum = parseInt(countryId, 10);
+	if (isNaN(countryIdNum)) {
+		return json({ message: "Invalid country ID" }, { status: 400 });
+	}
 
-	const { error } = await supabase.from('Countries').update({
-		name: updatedCountryName,
-		edited_at: currentTime
+	const { data, error } = await supabase.from('Countries').update({
+		name: updatedCountryName
 	}).match({ id: countryId });
 
-	if (error) return json({ message: error.message }, { status: 500 });
-	return json({ message: "Country updated successfully" }, { status: 200 });
+	if (error) {
+		console.error("Update error:", error); // Additional logging
+		return json({ message: error.message }, { status: 500 });
+	}
+
+	// Optional: Log the updated data for verification
+	console.log("Updated data:", data);
+
+	return json({ message: "Country updated successfully", data }, { status: 200 });
 }
