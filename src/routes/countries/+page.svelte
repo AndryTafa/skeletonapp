@@ -113,13 +113,12 @@
 		}
 
 		const updatedCountry: UpdateCountryModel = {
-      id: selectedCountry.id,
-      name: updatedName,
+      name: updatedName
     }; 
 
 		try {
 			const response = await fetch('/countries/' + selectedCountry.id, {
-				method: 'PUT',
+				method: 'PATCH',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(updatedCountry),
 			});

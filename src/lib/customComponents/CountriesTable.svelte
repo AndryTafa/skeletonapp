@@ -19,6 +19,7 @@
           <th scope="col" id="headerId">ID</th>
 				  <th scope="col" id="headerName">Name</th>
 				  <th scope="col" id="headerCreatedAt">Created At</th>
+				  <th scope="col" id="headerEditedAt">Edited At</th>
 				  <th scope="col" id="headerOptions" class="visually-hidden">Action</th>
 				</tr>
 			</thead>
@@ -28,6 +29,7 @@
 					<td headers="headerId">{country.id}</td>
 					<td headers="headerName">{country.name}</td>
 					<td headers="headerCreatedAt">{formatDate(country.created_at)}</td>
+					<td headers="headerEditedAt">{formatDate(country.edited_at)}</td>
 					<td headers="headerOptions">
 						<span class="options-span" style="color: #a3fff1" id={"trigger-" + country.id}>Options</span>
 						<Dropdown triggeredBy={"#trigger-" + country.id}>
