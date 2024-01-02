@@ -3,7 +3,7 @@
 </script>
 
 <div class="flex main-content" in:fade>
-	<h1 class="flex h1">Welcome to this useless app</h1>
+	<h1 class="flex h1">Welcome to this app</h1>
 	<br />
 	<p class="flex h3">Click the button below to get started</p>
 	<br />
