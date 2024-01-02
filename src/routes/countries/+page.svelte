@@ -3,8 +3,9 @@
 	import { onMount } from 'svelte';
 	import { getToastStore, type ToastSettings } from '@skeletonlabs/skeleton';
 	import CountriesTable from '$lib/customComponents/CountriesTable.svelte';
-	import CreateCountryModal from '$lib/customComponents/CreateOrEditCountryModal.svelte';
 	import { fade } from 'svelte/transition';
+	import CreateCountryForm from '$lib/customComponents/CreateCountryForm.svelte';
+	import EditCountryForm from '$lib/customComponents/EditCountryForm.svelte';
 
 	let countries: CountryModel[] = [];
 	const toastStore = getToastStore();
@@ -12,8 +13,8 @@
 	let createFormModal = false;
 	let editFormModal = false;
 
-	let selectedCountry: CountryModel | null = null;
-	let newCountryName: string = '';
+	let selectedCountry: CountryModel;
+  $: console.log('updated selected country: ', JSON.stringify(selectedCountry));
 
 	async function getCountries() {
 		const res = await fetch('/countries');
@@ -22,19 +23,18 @@
 		return countries.sort((a, b) => a.id - b.id);
 	}
 
-	let editingCountryName = ''; // For storing the name being edited
+	let newCountryName = ''; // For storing the name being edited
 
-	function handleEdit(country: CountryModel) {
-		selectedCountry = country;
-		editingCountryName = country.name; // Set the initial value for editing
+  function onClickCreate() { createFormModal = true; }
+
+	function onClickEdit(clickedCountry: CountryModel) {
+		console.log('clicked country:', clickedCountry);
+		selectedCountry = clickedCountry;
+		newCountryName = clickedCountry.name; // Set the initial value for editing
 		editFormModal = true;
 	}
 
-	function onEditConfirm(updatedName: string) {
-		updateCountryHandler(updatedName);
-	}
-
-	async function deleteCountry(country: CountryModel) {
+	async function onClickDelete(country: CountryModel) {
 		// Keeping a copy of the original countries list
 		const previousCountriesState = [...countries];
 
@@ -113,17 +113,24 @@
 			console.error('No country selected for updating');
 			return;
 		}
+    console.log('########################', updatedName);
+    console.log('updateCountryHandler selectedCountry:', selectedCountry)
+
+		console.log('updateCountryHandler name to update with:', updatedName);
+		console.log('countryToUpdate:', selectedCountry);
 
 		const updatedCountry: UpdateCountryModel = {
-			name: updatedName
-		};
+      id: selectedCountry.id,
+      name: updatedName,
+    }; 
 
 		try {
 			const response = await fetch('/countries/' + selectedCountry.id, {
-				method: 'PATCH',
+				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify(updatedCountry),
 			});
+
 
 			if (!response.ok) {
 				throw new Error('Failed to update country');
@@ -143,12 +150,20 @@
 	onMount(async () => {
 		await getCountries();
 	});
-	// empty country
 </script>
 
 <main in:fade={{delay: 200}}>
-	<CountriesTable {countries} onEdit={handleEdit} onDelete={deleteCountry} onCreate={() => { createFormModal = true }} />
-	<CreateCountryModal bind:open={createFormModal} on:create={createCountryHandler} />
-	<CreateCountryModal bind:open={editFormModal} on:confirm={() => onEditConfirm(editingCountryName)} />
-</main>
+	<CountriesTable {countries}
+    onEdit={onClickEdit}
+    onDelete={onClickDelete}
+    onCreate={onClickCreate} />
 
+	<CreateCountryForm
+    bind:open={createFormModal}
+    on:create={createCountryHandler} />
+
+	<EditCountryForm
+    bind:open={editFormModal}
+    bind:countryName={newCountryName} 
+    on:editCountryDispatcher={() => updateCountryHandler(newCountryName)} />
+</main>

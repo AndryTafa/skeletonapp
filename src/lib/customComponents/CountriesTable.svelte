@@ -15,12 +15,12 @@
 	<div class="table-container">
 		<table class="table">
 			<thead>
-			<tr>
-				<th scope="col" id="headerId">ID</th>
-				<th scope="col" id="headerName">Name</th>
-				<th scope="col" id="headerCreatedAt">Created At</th>
-				<th scope="col" id="headerOptions" class="visually-hidden">Action</th>
-			</tr>
+				<tr> 
+          <th scope="col" id="headerId">ID</th>
+				  <th scope="col" id="headerName">Name</th>
+				  <th scope="col" id="headerCreatedAt">Created At</th>
+				  <th scope="col" id="headerOptions" class="visually-hidden">Action</th>
+				</tr>
 			</thead>
 			<tbody>
 			{#each countries as country (country.id)}

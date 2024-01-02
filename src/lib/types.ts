@@ -10,5 +10,6 @@ export type CreateCountryModel = {
 };
 
 export type UpdateCountryModel = {
+  id: number;
 	name: string;
 };
