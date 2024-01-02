@@ -30,12 +30,17 @@ export async function GET({ params }: { params: { id: string } }) {
 	return json(data[0], { status: 200 });
 }
 
-export async function PUT({ request, params }: { request: Request; params: { id: string } }) {
+export async function PATCH({ request, params }: { request: Request; params: { id: string } }) {
 	const reqBody = await request.json();
 	const countryId = params.id;
 	const updatedCountryName = reqBody.name;
+  const edited_at = new Date().toISOString();
 
-	const { data, error } = await supabase.from('Countries').update({ name: updatedCountryName }).eq('id', countryId ) .select();
+	const { data, error } = await supabase
+    .from('Countries')
+    .update({ name: updatedCountryName, edited_at: edited_at })
+    .eq('id', countryId )
+    .select();
 
 	if (error) {
 		console.error("Error when updating country", error);

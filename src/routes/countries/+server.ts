@@ -24,13 +24,15 @@ export async function GET() {
 export const POST: RequestHandler = async ({ request }) => {
 	const body = await request.json();
 	const countryName = body.name;
+  const created_at = new Date().toISOString();
+  const edited_at = created_at;
 
-	// Validate the input
-	if (typeof countryName !== 'string' || countryName.trim() === '') {
-		return json({ message: 'Invalid country name' }, { status: 400 });
-	}
-
-  const { data, error } = await supabase.from('Countries').insert({ name: countryName }).select();
+  const { data, error } = await supabase
+    .from('Countries')
+    .insert({ name: countryName,
+      created_at: created_at,
+      edited_at: edited_at})
+    .select();
 
   if (error) {
     console.error("Error when creating country", error);
