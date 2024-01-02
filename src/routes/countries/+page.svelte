@@ -14,7 +14,6 @@
 	let editFormModal = false;
 
 	let selectedCountry: CountryModel;
-  $: console.log('updated selected country: ', JSON.stringify(selectedCountry));
 
 	async function getCountries() {
 		const res = await fetch('/countries');
@@ -28,7 +27,6 @@
   function onClickCreate() { createFormModal = true; }
 
 	function onClickEdit(clickedCountry: CountryModel) {
-		console.log('clicked country:', clickedCountry);
 		selectedCountry = clickedCountry;
 		newCountryName = clickedCountry.name; // Set the initial value for editing
 		editFormModal = true;
@@ -113,11 +111,6 @@
 			console.error('No country selected for updating');
 			return;
 		}
-    console.log('########################', updatedName);
-    console.log('updateCountryHandler selectedCountry:', selectedCountry)
-
-		console.log('updateCountryHandler name to update with:', updatedName);
-		console.log('countryToUpdate:', selectedCountry);
 
 		const updatedCountry: UpdateCountryModel = {
       id: selectedCountry.id,
@@ -137,7 +130,6 @@
 			}
 
 			const responseData = await response.json();
-			console.log('responseData:', responseData)
 			showToast(responseData.message);
 
 			await getCountries();
@@ -160,7 +152,7 @@
 
 	<CreateCountryForm
     bind:open={createFormModal}
-    on:create={createCountryHandler} />
+    on:createCountryDispatcher={createCountryHandler} />
 
 	<EditCountryForm
     bind:open={editFormModal}
